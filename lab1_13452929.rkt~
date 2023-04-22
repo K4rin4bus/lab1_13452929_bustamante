@@ -23,23 +23,18 @@
 
 
 ;; Capa Selectora - TDA System
-(define get-system-name car)  ;Nombre sistema
-(define get-system-users cadr) ;Lista usuarios sistema
-(define get-system-drives caddr) ;Lista de unidades de disco sistema
-(define get-system-current-user cadddr) ;Sistema actual
-(define get-system-current-drive (lambda (system) (car (cdr (cdr (cdr (cdr system))))))) ;Drive actual sistema
-(define get-system-current-path (lambda (system) (car (cdr (cdr (cdr (cdr (cdr system)))))))) ;Path actual sistema
+(define get-system-name car)  ;System -> String
+(define get-system-users cadr) ;System -> String List
+(define get-system-drives caddr) ;System -> Drive List
+(define get-system-current-user cadddr) ;System -> String
+(define get-system-current-drive (lambda (system) (car (cdr (cdr (cdr (cdr system))))))) ;System -> char
+(define get-system-current-path (lambda (system) (car (cdr (cdr (cdr (cdr (cdr system)))))))) ;System -> String
 
 
 ;; Capa Pertenencia - TDA System
 ;; member verifica si existe un elemento de una lista
 (define (exists-system-drive? letter system) ;;existe letra unidad en sistema
   (member letter (map get-drive-letter (get-system-drives system))))
-
-;; member verifica si existe un elemento de una lista, para el caso el usuario
-(define (exists-system-user? user system)
-  (member user (get-system-users system)))
-
 
 
 ;; Capa Modificadora - TDA System
@@ -57,8 +52,8 @@
 
 
 ;; Capa Constructora - TDA Drive
-;; Dom: letter X name X capacity
-;; Rec: system
+;; Dom: 
+;; Rec:
 ;; Descripción: Función que crea unidad de disco
 (define make-drive
   (lambda (letter name capacity)
@@ -66,22 +61,6 @@
 
 ;; Capa Selectora - TDA Drive
 (define get-drive-letter car)
-(define get-drive-name cadr)
-(define get-drive-capacity caddr)
-
-
-;; Capa Modificadora - TDA User
-;; Agregar nuevo user (se usa en RF5 add-user)
-(define system-add-user
-  (lambda (system new-user)
-    (make-system (get-system-name system) ;nombre sistema
-                 (cons new-user (get-system-users system))
-                 (get-system-drives system)
-                 (get-system-current-user system)
-                 (get-system-current-drive system)
-                 (get-system-current-path system))))
-
-
 
 
 
@@ -97,8 +76,7 @@
 
 ;; RF4. TDA system - add-drive
 ;; Dom: system X drive
-;; Rec: system
-;; Descripción: Función que permite agregar una unidad de disco al sistema operativo, letra única
+;; Rec: system      
 (define add-drive
   (lambda (system)
     (lambda (letter name capacity)
@@ -106,20 +84,6 @@
           (system-add-drive system    ;;Si es verdadero, creo unidad en sistema
                (make-drive letter name capacity))
           system)))) ;;else return system
-
-
-;; RF5. TDA system - register
-;; Dom: System X
-;;      username (str)
-;; Rec: System
-(define add-user
-  (lambda (system)
-    (lambda (username)
-      (if (not (exists-system-user? username system)) ;; si usuario no existe, entonces agregar
-          (system-add-user system username) ;; retornar sistema
-          system)))) ;; si usuario existe, retornar sistema sin cambios
-
-
 
 
 
@@ -130,16 +94,3 @@ S0
 ;ejecutando comando para agregar unidad de disco RF4.-
 (define S1 ((run S0 add-drive) #\C "OS" 10000000000))
 S1
-(define S2 ((run S1 add-drive) #\C "OS1" 30000000000))
-S2
-
-(define S3 ((run S2 add-drive) #\D "OS2" 2000))
-S3
-
-;añadiendo usuarios. Incluye caso S6 que intenta registrar usuario duplicado
-(define S4 ((run S3 add-user) "user1"))
-S4
-(define S5 ((run S4 add-user) "user1")) ;; retorna system actual sin cambios
-S5
-(define S6 ((run S5 add-user) "user2"))
-S6
