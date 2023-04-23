@@ -4,9 +4,11 @@
 ;; Type System = name (String) X users (String list) X drives (drive list) X
 ;;               current-user (String) X current-drive (char) X current-path (String)
 
-
 ;; Representación TDA Drive:
 ;; TDA Drive: letter (Char) x name (String) x capacity (int)
+
+
+
 
 
 ;; Capa Constructora - TDA system
@@ -23,27 +25,38 @@
 
 
 ;; Capa Selectora - TDA System
+;; Dom: name (str)
+;; Rec: Atributo del sistema
+;; Descripción: Funciones que seleccionan un atributo del sistema operativo
 (define get-system-name car)  ;Nombre sistema
 (define get-system-users cadr) ;Lista usuarios sistema
 (define get-system-drives caddr) ;Lista de unidades de disco sistema
-(define get-system-current-user cadddr) ;Sistema actual
+(define get-system-current-user cadddr) ;Usuario actual del sistema
 (define get-system-current-drive (lambda (system) (car (cdr (cdr (cdr (cdr system))))))) ;Drive actual sistema
 (define get-system-current-path (lambda (system) (car (cdr (cdr (cdr (cdr (cdr system)))))))) ;Path actual sistema
 
 
 ;; Capa Pertenencia - TDA System
+;; Dom: system
+;; Rec: Boolean
+;; Descripción: Funciones que verifican existencia de un atributo del sistema operativo
 ;; member verifica si existe un elemento de una lista
-(define (exists-system-drive? letter system) ;;existe letra unidad en sistema
+(define (exists-system-drive? letter system) ;existe letra unidad en sistema
   (member letter (map get-drive-letter (get-system-drives system))))
+ 
+(define (exists-system-user? username system)  ;existe el usuario en el sistema?
+  (member username (get-system-users system)))
 
-;; member verifica si existe un elemento de una lista, para el caso el usuario
-(define (exists-system-user? user system)
-  (member user (get-system-users system)))
 
+;(define (exists-system-current-user? current-user system)  ;existe el usuario actual en el sistema
+;  ( if (get-system-current-user system)))
 
 
 ;; Capa Modificadora - TDA System
-;; agregar nuevo drive (se usa en RF4 add-drive)
+
+;; Dom: drive
+;; Rec: system
+;; Descripción: Función que modifica atributo drive del sistema operativo
 (define system-add-drive
   (lambda (system new-drive)
     (make-system (get-system-name system)
@@ -53,28 +66,12 @@
                  (get-system-current-drive system)
                  (get-system-current-path system))))
 
-
-
-
-;; Capa Constructora - TDA Drive
-;; Dom: letter X name X capacity
+;; Dom: user
 ;; Rec: system
-;; Descripción: Función que crea unidad de disco
-(define make-drive
-  (lambda (letter name capacity)
-    (list letter name capacity)))
-
-;; Capa Selectora - TDA Drive
-(define get-drive-letter car)
-(define get-drive-name cadr)
-(define get-drive-capacity caddr)
-
-
-;; Capa Modificadora - TDA User
-;; Agregar nuevo user (se usa en RF5 add-user)
-(define system-add-user
+;; Descripción: Función que modifica atributo user del sistema operativo
+(define system-register
   (lambda (system new-user)
-    (make-system (get-system-name system) ;nombre sistema
+    (make-system (get-system-name system)
                  (cons new-user (get-system-users system))
                  (get-system-drives system)
                  (get-system-current-user system)
@@ -82,7 +79,66 @@
                  (get-system-current-path system))))
 
 
+;; Dom: current-user
+;; Rec: system
+;; Descripción: Función que modifica atributo usuario actual del sistema operativo
+(define system-login
+  (lambda (system current-user)
+    (make-system (get-system-name system)
+                 (get-system-users system)
+                 (get-system-drives system)
+                 current-user ;debo pasarle el usuario actual
+                 (get-system-current-drive system)
+                 (get-system-current-path system))))
 
+
+;; Dom: system
+;; Rec: system
+;; Descripción: Función que modifica atributo current-user, cierra sesion sistema operativo
+(define system-logout
+  (lambda (system)
+    (make-system (get-system-name system)
+                 (get-system-users system)
+                 (get-system-drives system)
+                 "" ;debo pasarle 
+                 (get-system-current-drive system)
+                 (get-system-current-path system))))
+
+
+;; Dom: 
+;; Rec: system
+;; Descripción: Función que modifica atributo usuario actual del sistema operativo
+(define sistem-switch-drive
+  (lambda (system letter)
+    (make-system (get-system-name system)
+                 (get-system-users system)
+                 (get-system-drives system)
+                 (get-system-current-user system)
+                 letter
+                 (get-system-current-path system))))
+
+
+
+
+
+;; Capa Constructora - TDA Drive
+
+;; Dom: letter X name X capacity
+;; Rec: system
+;; Descripción: Función que crea unidad de disco
+(define make-drive
+  (lambda (letter name capacity)
+    (list letter name capacity)))
+
+
+;; Capa Selectora - TDA Drive
+
+;; Dom: drive
+;; Rec: Atributo del drive
+;; Descripción: Funciones que seleccionan un atributo del drive
+(define get-drive-letter car)
+(define get-drive-name cadr)
+(define get-drive-capacity caddr)
 
 
 ;; ===== Requerimientos Funcionales =====
@@ -112,14 +168,38 @@
 ;; Dom: System X
 ;;      username (str)
 ;; Rec: System
-(define add-user
+;; Descripción: Función que permite usuario al sistema operativo
+(define register
   (lambda (system)
     (lambda (username)
       (if (not (exists-system-user? username system)) ;; si usuario no existe, entonces agregar
-          (system-add-user system username) ;; retornar sistema
+          (system-register system username) ;; retornar sistema
           system)))) ;; si usuario existe, retornar sistema sin cambios
 
 
+;; RF6. TDA system - login
+;; Dom: System X
+;;      username (str)
+;; Rec: System
+;; Descripción: Función que permite iniciar sesion en el sistema operativo
+(define login
+  (lambda (system)
+    (lambda (username)
+      (if (string=? (get-system-current-user system) "") ;; si no hay usuario logeado
+          (system-login system username) ;;se logea
+          system)))) ;; si existe usuario activo, retorna sistema sin cambios
+
+
+;; RF7. TDA system - logout
+;; Dom: System 
+;; Rec: System
+;; Descripción: Función que permite cerrar sesion en el sistema operativo
+(define (logout system)
+      (if (not (string=? (get-system-current-user system) "")) ;; si hay usuario logeado
+          (system-logout system) ;;cierra sesion
+          system)) ;; si no, retorna sistema sin cambios
+ 
+        
 
 
 
@@ -127,19 +207,35 @@
 ;creando un sistema RF2.-
 (define S0 (system "newSystem"))
 S0
-;ejecutando comando para agregar unidad de disco RF4.-
-(define S1 ((run S0 add-drive) #\C "OS" 10000000000))
+;ejecutando comando para agregar unidad de disco c: RF4.-
+(define S1 ((run S0 add-drive) #\C "SO" 1000))
 S1
-(define S2 ((run S1 add-drive) #\C "OS1" 30000000000))
+;ejecutando comando para agregar unidad de disco existente (c:), 
+(define S2 ((run S1 add-drive) #\C "SO1" 3000)) ;no agrega y retorna system actual sin cambios
 S2
-
-(define S3 ((run S2 add-drive) #\D "OS2" 2000))
+;ejecutando comando para agregar unidad de disco d:
+(define S3 ((run S2 add-drive) #\D "Util" 2000))
 S3
 
-;añadiendo usuarios. Incluye caso S6 que intenta registrar usuario duplicado
-(define S4 ((run S3 add-user) "user1"))
+;añadiendo usuarios. 
+(define S4 ((run S3 register) "user1")) ;agrega usuario
 S4
-(define S5 ((run S4 add-user) "user1")) ;; retorna system actual sin cambios
+(define S5 ((run S4 register) "user1")) ;intenta agregar usuario existente, retorna system actual sin cambios
 S5
-(define S6 ((run S5 add-user) "user2"))
+(define S6 ((run S5 register) "user2")) ;agrega usuario
 S6
+
+;Inicio de sesión. 
+(define S7 ((run S6 login) "user1")) ;inicia sesion usuario 1
+S7
+(define S8 ((run S7 login) "user2")) ;inicia sesion usuario2, sin deslogaer user1
+S8
+
+(define S9 (run S8 logout)) ;inicia sesion usuario2, sin salir antes de user1
+S9
+
+(define S10 ((run S9 login) "user2"))
+S10
+
+
+
