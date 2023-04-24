@@ -1,0 +1,28 @@
+Requerimientos funcionales:
+
+Nombre Requerimientos				Autoevaluación
+
+1.- 										1
+2.- TDA system - constructor				1
+3.- TDA system - run 						1
+4.- TDA system - add-drive					1
+5.- TDA system - register					1
+6.- TDA system - login						1
+7.- TDA system - logout						1
+8.- TDA system - switch-drive				1
+9.- TDA system - md							
+10.- TDA system - cd
+11.- TDA system - add-file
+12.- TDA system - del
+13.- TDA system - rd
+14.- TDA system - copy
+15.- TDA system - move
+16.- TDA system - ren
+17.- TDA system - dir
+18.- TDA system - format
+19.- TDA system - encrypt
+20.- TDA system - decrypt
+21.- TDA system - minus-one
+22.- TDA system - grep
+23.- TDA system - view-trash
+24.- TDA system - restore

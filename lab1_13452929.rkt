@@ -5,7 +5,11 @@
 ;;               current-user (String) X current-drive (char) X current-path (String)
 
 ;; Representación TDA Drive:
-;; TDA Drive: letter (Char) x name (String) x capacity (int)
+;; TDA Drive: letter (Char) X name (String) X capacity (int)
+
+;; Representación TDA File:
+;; TDA File: filename (String) X extension (String) X contenido (String) X
+;;           atrSeguridad (Char) X atrLectura (Char)
 
 
 
@@ -108,7 +112,7 @@
 ;; Dom: 
 ;; Rec: system
 ;; Descripción: Función que modifica atributo usuario actual del sistema operativo
-(define sistem-switch-drive
+(define system-switch-drive
   (lambda (system letter)
     (make-system (get-system-name system)
                  (get-system-users system)
@@ -124,7 +128,7 @@
 ;; Capa Constructora - TDA Drive
 
 ;; Dom: letter X name X capacity
-;; Rec: system
+;; Rec: Drive
 ;; Descripción: Función que crea unidad de disco
 (define make-drive
   (lambda (letter name capacity)
@@ -139,6 +143,17 @@
 (define get-drive-letter car)
 (define get-drive-name cadr)
 (define get-drive-capacity caddr)
+
+
+;; Capa Constructora - TDA File
+
+;; Dom: filename X extention X content X atrSecurite X atrReading
+;; Rec: file
+;; Descripción: Función que crea un archivo
+(define (file filename extention content .atributos)
+    (list filename extention content .atributos))
+
+
 
 
 ;; ===== Requerimientos Funcionales =====
@@ -198,8 +213,22 @@
       (if (not (string=? (get-system-current-user system) "")) ;; si hay usuario logeado
           (system-logout system) ;;cierra sesion
           system)) ;; si no, retorna sistema sin cambios
- 
-        
+
+
+;; RF8. TDA system - swicth-drive
+;; Dom: System X
+;;      letter (char)
+;; Rec: System
+;; Descripción: Función que permite fijar unidad e disco, usuario logeado
+(define switch-drive
+  (lambda (system)
+    (lambda (letter)
+      (if (not (string=? (get-system-current-user system) "")) ;; si hay usuario logeado
+
+          (if (exists-system-drive? letter system) ;; comprobar que la unidad existe
+                (system-switch-drive system letter) ;;fija unidad
+                system)
+          system)))) ;;else return system
 
 
 
@@ -230,12 +259,14 @@ S6
 S7
 (define S8 ((run S7 login) "user2")) ;inicia sesion usuario2, sin deslogaer user1
 S8
-
 (define S9 (run S8 logout)) ;inicia sesion usuario2, sin salir antes de user1
 S9
-
 (define S10 ((run S9 login) "user2"))
 S10
 
-
+;cambios de unidad, incuyendo unidad inexistente (current-drive)
+(define S11 ((run S10 switch-drive) #\K))
+S11
+(define S12 ((run S11 switch-drive) #\C))
+S12
 
