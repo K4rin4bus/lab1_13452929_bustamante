@@ -1,0 +1,48 @@
+#lang racket
+;; ===== Script de pruebas =====
+;creando un sistema RF2.-
+(define S0 (system "newSystem"))
+S0
+;ejecutando comando para agregar unidad de disco c: RF4.-
+(define S1 ((run S0 add-drive) #\C "SO" 1000))
+S1
+;ejecutando comando para agregar unidad de disco existente (c:), 
+(define S2 ((run S1 add-drive) #\C "SO1" 3000)) ;no agrega y retorna system actual sin cambios
+S2
+;ejecutando comando para agregar unidad de disco d:
+(define S3 ((run S2 add-drive) #\D "Util" 2000))
+S3
+
+;añadiendo usuarios. 
+(define S4 ((run S3 register) "user1")) ;agrega usuario
+S4
+(define S5 ((run S4 register) "user1")) ;intenta agregar usuario existente, retorna system actual sin cambios
+S5
+(define S6 ((run S5 register) "user2")) ;agrega usuario
+S6
+
+;Inicio de sesión. 
+(define S7 ((run S6 login) "user1")) ;inicia sesion usuario 1
+S7
+(define S8 ((run S7 login) "user2")) ;inicia sesion usuario2, sin deslogaer user1
+S8
+(define S9 (run S8 logout)) ;inicia sesion usuario2, sin salir antes de user1
+S9
+(define S10 ((run S9 login) "user2"))
+S10
+
+;cambios de unidad, incuyendo unidad inexistente (current-drive)
+(define S11 ((run S10 switch-drive) #\K))
+S11
+(define S12 ((run S11 switch-drive) #\C))
+S12
+
+;Añadiendo carpetas, incluye caso de carpetas duplicadas
+(define S13 ((run S12 md) "folder1"))
+S13
+(define S14 ((run S13 md) "folder2"))
+S14
+(define S15 ((run S14 md) "folder2"))
+S15
+(define S16 ((run S15 md) "folder3"))
+S16
