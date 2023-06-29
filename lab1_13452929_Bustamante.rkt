@@ -3,10 +3,13 @@
 ;; Representación TDA System:
 ;; Type System = name (String) X users (String list) X drives (drive list) X
 ;;               current-user (String) X current-drive (char) X current-path (String) X
-;;               date (num)
+;;               date (num) X folder (string)
 
 ;; Representación TDA Drive:
 ;; TDA Drive: letter (Char) X name (String) X capacity (int)
+
+;; Representación TDA Folder
+;; TDA Folder rutaInicial (String) X newFolder (String)
 
 ;; Representación TDA Rutas:
 ;; TDA Rutas: ruta (String) X file (String list)
@@ -156,6 +159,19 @@
 (define get-drive-capacity caddr)
 
 
+;; Capa Constructora - TDA Folder
+
+;; Dom: rutaInical X newFolder
+;; Rec: folder
+;; Descripción: Función que crea una carpeta
+(define (add-folder ruta newFolder)
+  (string-append ruta "/" newFolder "/"))
+
+
+(define (make-path ruta usuario)
+  (list ruta usuario (current-seconds)))
+
+
 ;; Capa Constructora - TDA File
 
 ;; Dom: filename X extention X content X atrSecurity X atrReading
@@ -163,6 +179,8 @@
 ;; Descripción: Función que crea un archivo
 (define (file filename extention content .atributos)
     (list filename extention content .atributos))
+
+
 
 
 
