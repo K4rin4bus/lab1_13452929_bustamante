@@ -1,28 +1,29 @@
 #lang Racket
 
-;; Representación TDA System:
-;; Type System = name (String) X users (String list) X drives (drive list) X
-;;               current-user (String) X current-drive (char) X current-path (String) X
-;;               date (num) X folder (string)
+#|  
+ Representación TDA System:
+ Type System = name (String) X users (String list) X drives (drive list) X
+               current-user (String) X current-drive (char) X current-path (String) X
+               date (num) X folder (string)
 
-;; Representación TDA Drive:
-;; TDA Drive: letter (Char) X name (String) X capacity (int)
+ Representación TDA Drive:
+ TDA Drive: letter (Char) X name (String) X capacity (int)
 
-;; Representación TDA Folder
-;; TDA Folder rutaInicial (String) X newFolder (String)
+ Representación TDA Folder
+ TDA Folder rutaInicial (String) X newFolder (String)
 
-;; Representación TDA Rutas:
-;; TDA Rutas: ruta (String) X file (String list)
+ Representación TDA Rutas:
+ TDA Rutas: ruta (String) X file (String list)
 
-;; Representación TDA Ruta
-;; TDA Ruta: pathname (String) X extention (String) X content (String)
+ Representación TDA Ruta
+ TDA Ruta: pathname (String) X extention (String) X content (String)
 
-;; Representación TDA File:
-;; TDA File: filename (String) X  extention (String) X content (String)
-;;           atrSecurity (Char) X atrReading (Char) X modyficationDate (int)
+ Representación TDA File:
+ TDA File: filename (String) X  extention (String) X content (String)
+           atrSecurity (Char) X atrReading (Char) X modyficationDate (int)
 
 
-
+|#
 
 
 
@@ -273,6 +274,7 @@
 ;creando un sistema RF2.-
 (define S0 (system "newSystem"))
 S0
+
 ;ejecutando comando para agregar unidad de disco c: RF4.-
 (define S1 ((run S0 add-drive) #\C "SO" 1000))
 S1
@@ -316,4 +318,3 @@ S12
 ;S15
 ;(define S16 ((run S15 md) "folder3"))
 ;S16
-
